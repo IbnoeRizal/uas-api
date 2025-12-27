@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../lib/generated/prisma"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  Student
+  Admin
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(Student)
+  createdAt DateTime @default(now())
+  
+  // Relasi ke junction table
+  enrollments Enrollment[]
+}
+
+model Course {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  
+  // Relasi ke junction table
+  enrollments Enrollment[]
+}
+
+// Junction table (tabel penghubung)
+model Enrollment {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  courseId   Int
+  enrolledAt DateTime @default(now())
+  grade      String?  // Opsional: bisa simpan nilai
+  
+  // Relasi ke User dan Course
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  // Constraint: 1 student tidak bisa enroll 2x ke course yang sama
+  @@unique([userId, courseId])
+}
