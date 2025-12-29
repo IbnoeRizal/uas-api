@@ -21,7 +21,7 @@ export async function POST(request) {
     }
 
     try{
-        const user = prisma.user.findFirstOrThrow(
+        const user = await prisma.user.findFirstOrThrow(
             {
                 where:validate.data,
                 select:{
@@ -30,7 +30,7 @@ export async function POST(request) {
                 }
             }
         );
-        const token = getToken(user);
+        const token = await getToken(user);
         return NextResponse.json({message:"token",token },{status: st2xx.ok});
         
     }catch(e){
