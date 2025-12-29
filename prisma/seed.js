@@ -5,7 +5,7 @@ import 'dotenv/config';
 
 const prisma = new PrismaClient({
     adapter:new PrismaPg({
-        connectionString: process.env.DIRECT_DATABASE_URL
+        connectionString: process.env.DATABASE_URL
     })
 });
 
