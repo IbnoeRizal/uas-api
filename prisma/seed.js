@@ -20,10 +20,9 @@ const courses = [
 const STUDENTS_COUNT = 10;
 const ENROLLED_PER_STUDENT = Math.min(courses.length, 3);
 
-function factoryUser(id) {
+function factoryUser() {
   const name = fakerID_ID.person.fullName();
   return {
-    id,
     name,
     email: fakerID_ID.internet.email({
       firstName: name.split(" ")[0],
@@ -66,7 +65,7 @@ async function main() {
   console.log("👤 Seeding users...");
   const usersResult = await prisma.user.createMany({
     data: Array.from({ length: STUDENTS_COUNT }, (_, i) =>
-      factoryUser(i + 1)
+      factoryUser()
     ),
   });
   console.log(`   ✓ ${usersResult.count} users dibuat`);
