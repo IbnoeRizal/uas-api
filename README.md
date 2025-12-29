@@ -34,13 +34,13 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ```
 
 > [!IMPORTANT]
-> ganti tujuan seed database di ```prisma.config.ts```.
+> ganti tujuan seed database di ```seed.js```.
 
-```typescript
-    datasource: {
-        url: process.env["DIRECT_DATABASE_URL"],
-        //jangan koneksi accelerate
-    },
+```js
+    adapter:new PrismaPg({
+        connectionString: process.env.DIRECT_DATABASE_URL
+        //jangan pakai koneksi accelerate
+    })
 ```
 
 
