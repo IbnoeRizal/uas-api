@@ -70,13 +70,18 @@ async function main() {
   });
   console.log(`   ✓ ${usersResult.count} users dibuat`);
 
+  const {_max} = await prisma.user.aggregate({_max:{
+    id:true
+  }});
+
+  const maxId = _max.id?? 0;
   const courseIds = await prisma.course.findMany({
     select: { id: true },
   });
 
   const enrollments = [];
 
-  for (let userId = 1; userId <= STUDENTS_COUNT; userId++) {
+  for (let userId = Math.max(maxId-STUDENTS_COUNT+1,1); userId <= Math.max(STUDENTS_COUNT,maxId); userId++) {
     const pickedCourses = shuffle(courseIds)
       .slice(0, ENROLLED_PER_STUDENT);
 
