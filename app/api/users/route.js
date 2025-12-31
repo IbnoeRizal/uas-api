@@ -4,6 +4,7 @@ import { Role } from "@prisma/client";
 import { getUserFromRequest,requireRole } from "@/lib/auth";
 import { st5xx,st4xx } from "@/lib/responseCode";
 import { User_delete } from "@/lib/authschema";
+import { pagination } from "@/lib/pagination";
 
 /**
  * @param {import("next/server").NextRequest} request 
@@ -14,10 +15,17 @@ export async function GET(request) {
     try{
 
         requireRole(payload,[Role.Admin]);
-
-        const users = await prisma.user.findMany();
+        const {page,limit} = pagination(request);
+        const [users,total] = await Promise.all([
+            prisma.user.findMany({
+                skip: (page - 1) * limit,
+                take: limit,
+                orderBy:{id:"asc"}
+            }),
+            prisma.user.count()
+        ]) 
         return NextResponse.json(
-            {message:users.length ?users:"no user found"},
+            {message:users.length ?users:"no user found",total},
             {status: users.length ? 200: 401}
         );
 
