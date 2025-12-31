@@ -2,13 +2,18 @@ import {prisma} from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
 import { User_update, flaterr } from "@/lib/authschema";
 import { hasherpass } from "@/lib/hashpass";
+import { getUserFromRequest,requireRole } from "@/lib/auth";
+import { Role } from "@prisma/client";
+import { st4xx } from "@/lib/responseCode";
 
 /**
  * @param {NextRequest} request 
  * @param {{ params: { id: string } }} context
  */
 export async function GET(request,context) {
+    const payload = await getUserFromRequest(request);
     try{
+        requireRole(payload,[Role.Admin]);
         const id = Number(( await context.params).id)
         const users = await prisma.user.findUnique({
             where:{
@@ -39,6 +44,9 @@ export async function GET(request,context) {
             {status: users? 200: 401}
         );
     }catch(e){
+        if(e.message == "FORBIDDEN")
+            return new NextResponse(`${e.message}`,{status:st4xx.forbiddden});
+
         console.error(e);
         return NextResponse.json({message:"internal server error"},{status:500})
     }
@@ -49,9 +57,10 @@ export async function GET(request,context) {
  * @param {{ params: { id: string } }} context
  */
 export async function PATCH(request, context) {
-
+    const payload = await getUserFromRequest(request);
     try{
-        const id = Number(await (context.params).id);
+        requireRole(payload,[Role.Admin]);
+        const id = Number((await context.params).id);
     
         const validate = User_update.safeParse(await request.json());
 
@@ -86,8 +95,11 @@ export async function PATCH(request, context) {
                 { status: 404 }
             );
         }
+        
+        if(e.message == "FORBIDDEN")
+            return new NextResponse(`${e.message}`,{status:st4xx.forbiddden});
 
-        console.log(`PATCH ERROR: ${e}`);
+        console.error(`PATCH ERROR: ${e}`);
         return NextResponse.json({message:"internal server error"},{status:500});
     }
     
