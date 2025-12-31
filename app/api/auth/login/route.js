@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import {st4xx, st2xx, st5xx} from "@/lib/responseCode"
 import { prisma } from "@/lib/prisma";
 import { getToken } from "@/lib/auth";
+import { verifyhashpass } from "@/lib/hashpass";
 
 
 /**
@@ -23,15 +24,22 @@ export async function POST(request) {
     try{
         const user = await prisma.user.findFirstOrThrow(
             {
-                where:validate.data,
+                where:{
+                    email: validate.data.email
+                },
                 select:{
                     id:true,
-                    role:true
+                    role:true,
+                    password:true,
                 }
             }
         );
+
+        if(!(await verifyhashpass(validate.data.password,user.password)))
+            return new NextResponse("Unauthorized",{status:st4xx.unauthorized});
+
         const token = await getToken(user);
-        return NextResponse.json({message:"token",token },{status: st2xx.ok});
+        return NextResponse.json({token },{status: st2xx.ok});
         
     }catch(e){
 
