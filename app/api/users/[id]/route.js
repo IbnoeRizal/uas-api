@@ -4,7 +4,7 @@ import { User_update, flaterr } from "@/lib/authschema";
 import { hasherpass } from "@/lib/hashpass";
 import { getUserFromRequest,requireRole } from "@/lib/auth";
 import { Role } from "@prisma/client";
-import { st4xx } from "@/lib/responseCode";
+import { st2xx, st4xx, st5xx } from "@/lib/responseCode";
 
 /**
  * @param {NextRequest} request 
@@ -41,7 +41,7 @@ export async function GET(request,context) {
         });
         return NextResponse.json(
             {message:users? users:"no user found"},
-            {status: users? 200: 401}
+            {status: users? st2xx.ok : st4xx.notFound}
         );
     }catch(e){
         if(e.message == "FORBIDDEN")
@@ -65,7 +65,7 @@ export async function PATCH(request, context) {
         const validate = User_update.safeParse(await request.json());
 
         if(!validate.success){
-            return NextResponse.json({message: flaterr(validate.error)},{status:400})
+            return NextResponse.json({message: flaterr(validate.error)},{status:st4xx.badRequest});
         }
         
         const cp = {...validate.data};
@@ -85,7 +85,7 @@ export async function PATCH(request, context) {
             }
         });
         
-        return NextResponse.json({message: `User updated successfully`, e}, {status:200});
+        return NextResponse.json({message: `User updated successfully`, e}, {status:st2xx.ok});
 
     }catch(e){
         
@@ -100,7 +100,7 @@ export async function PATCH(request, context) {
             return new NextResponse(`${e.message}`,{status:st4xx.forbiddden});
 
         console.error(`PATCH ERROR: ${e}`);
-        return NextResponse.json({message:"internal server error"},{status:500});
+        return NextResponse.json({message:"internal server error"},{status:st5xx.internalServerError});
     }
     
 }
