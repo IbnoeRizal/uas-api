@@ -5,8 +5,9 @@ import { st4xx } from "./lib/responseCode";
 /** @param {import("next/server").NextRequest} request */
 export async function proxy(request) {
   const user = await getUserFromRequest(request);
-
-  if (user) {
+  const {pathname} = request.nextUrl;
+  if (user || pathname.startsWith("/api/auth")) {
+    console.log(pathname);
     return NextResponse.next();
   }
 
@@ -19,5 +20,5 @@ export async function proxy(request) {
 }
 
 export const config = {
-    matcher : '/api/users/:path*'
+    matcher : '/api/:path*'
 }
