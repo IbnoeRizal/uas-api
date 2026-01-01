@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { flaterr, Enrollment, Enrollment_delete } from "@/lib/authschema";
 import { prismaError } from "@/lib/prismaErrorResponse";
 import { getUserFromRequest, requireRole } from "@/lib/auth";
 import { Role } from "@prisma/client";
-import { pagination } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 import { st2xx, st4xx, st5xx } from "@/lib/responseCode";
 
