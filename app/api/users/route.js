@@ -2,7 +2,7 @@ import {prisma} from "@/lib/prisma";
 import { NextResponse} from "next/server";
 import { Role } from "@prisma/client";
 import { getUserFromRequest,requireRole } from "@/lib/auth";
-import { st5xx,st4xx } from "@/lib/responseCode";
+import { st5xx,st4xx, st2xx } from "@/lib/responseCode";
 import { User_delete } from "@/lib/authschema";
 import { pagination } from "@/lib/pagination";
 
@@ -26,7 +26,7 @@ export async function GET(request) {
         ]) 
         return NextResponse.json(
             {message:users.length ?users:"no user found",total},
-            {status: users.length ? 200: 401}
+            {status: users.length ? st2xx.ok: st4xx.notFound}
         );
 
     }catch(e){
@@ -57,7 +57,7 @@ export async function DELETE(request) {
         });
         return NextResponse.json(
             {message:user ?`${user.name} deleted`:"no user found"},
-            {status: user.length ? 200: 401}
+            {status: user.length ? st2xx.ok: st4xx.notFound}
         );
 
     }catch(e){

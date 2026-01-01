@@ -48,7 +48,7 @@ export async function GET(request,context) {
             return new NextResponse(`${e.message}`,{status:st4xx.forbiddden});
 
         console.error(e);
-        return NextResponse.json({message:"internal server error"},{status:500})
+        return NextResponse.json({message:"internal server error"},{status:st5xx.internalServerError})
     }
 }
 
@@ -92,7 +92,7 @@ export async function PATCH(request, context) {
         if (e.code === "P2025") {
             return NextResponse.json(
                 { message: "User not found" },
-                { status: 404 }
+                { status: st4xx.notFound }
             );
         }
         
