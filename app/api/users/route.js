@@ -5,7 +5,7 @@ import { getUserFromRequest,requireRole } from "@/lib/auth";
 import { st5xx,st4xx, st2xx } from "@/lib/responseCode";
 import { User_delete } from "@/lib/authschema";
 import { pagination } from "@/lib/pagination";
-
+import { prismaError } from "@/lib/prismaErrorResponse";
 /**
  * @param {import("next/server").NextRequest} request 
  */
@@ -31,11 +31,12 @@ export async function GET(request) {
 
     }catch(e){
 
-        if(e.message == "FORBIDDEN")
-            return new NextResponse(`${e.message}`,{status:st4xx.forbiddden});
+        if( e.message && e.message == "FORBIDDEN")
+            return new NextResponse(`${e.message}`,{status:st4xx.forbidden});
 
         console.error(`${e.name}: ${e.message} \n ${e.stack}`);
-        return new NextResponse("internal server error",{status:st5xx.internalServerError});
+
+        return prismaError(e)?? new NextResponse("internal server error",{status:st5xx.internalServerError});
     }
 }
 
@@ -56,17 +57,17 @@ export async function DELETE(request) {
             where:validate.data,
         });
         return NextResponse.json(
-            {message:user ?`${user.name} deleted`:"no user found"},
-            {status: user.length ? st2xx.ok: st4xx.notFound}
+            {message:`${user.name} deleted`},
+            {status: st2xx.ok}
         );
 
     }catch(e){
 
-        if(e.message == "FORBIDDEN")
-            return new NextResponse(`${e.message}`,{status:st4xx.forbiddden});
+        if(e.message && e.message == "FORBIDDEN")
+            return new NextResponse(`${e.message}`,{status:st4xx.forbidden});
 
         console.error(`${e.name}: ${e.message} \n ${e.stack}`);
-        return new NextResponse("internal server error",{status:st5xx.internalServerError});
+        return prismaError(e)?? new NextResponse("internal server error",{status:st5xx.internalServerError});
     }
 
 }

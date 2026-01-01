@@ -5,6 +5,7 @@ import { hasherpass } from "@/lib/hashpass";
 import { getUserFromRequest,requireRole } from "@/lib/auth";
 import { Role } from "@prisma/client";
 import { st2xx, st4xx, st5xx } from "@/lib/responseCode";
+import { prismaError } from "@/lib/prismaErrorResponse";
 
 /**
  * @param {import ("next/server").NextRequest} request 
@@ -15,7 +16,7 @@ export async function GET(request,context) {
     try{
         requireRole(payload,[Role.Admin]);
         const id = Number(( await context.params).id)
-        const users = await prisma.user.findUnique({
+        const users = await prisma.user.findUniqueOrThrow({
             where:{
                 id: id,    
             },
@@ -40,15 +41,15 @@ export async function GET(request,context) {
             }
         });
         return NextResponse.json(
-            {message:users? users:"no user found"},
-            {status: users? st2xx.ok : st4xx.notFound}
+            {message: users},
+            {status: st2xx.ok}
         );
     }catch(e){
-        if(e.message == "FORBIDDEN")
-            return new NextResponse(`${e.message}`,{status:st4xx.forbiddden});
+        if(e.message && e.message == "FORBIDDEN")
+            return new NextResponse(`${e.message}`,{status:st4xx.forbidden});
 
-        console.error(e);
-        return NextResponse.json({message:"internal server error"},{status:st5xx.internalServerError})
+        console.error(`${e.name} : ${e.message} \n${e.stack}`);
+        return prismaError(e)?? NextResponse.json({message:"internal server error"},{status:st5xx.internalServerError})
     }
 }
 
@@ -88,19 +89,12 @@ export async function PATCH(request, context) {
         return NextResponse.json({message: `User updated successfully `, updated: update}, {status:st2xx.ok});
 
     }catch(e){
-        
-        if (e.code === "P2025") {
-            return NextResponse.json(
-                { message: "User not found" },
-                { status: st4xx.notFound }
-            );
-        }
-        
-        if(e.message == "FORBIDDEN")
-            return new NextResponse(`${e.message}`,{status:st4xx.forbiddden});
 
-        console.error(`PATCH ERROR: ${e}`);
-        return NextResponse.json({message:"internal server error"},{status:st5xx.internalServerError});
+        if(e.message && e.message == "FORBIDDEN")
+            return new NextResponse(`${e.message}`,{status:st4xx.forbidden});
+
+        console.error(`${e.name} : ${e.message} \n${e.stack}`);
+        return prismaError(e)?? NextResponse.json({message:"internal server error"},{status:st5xx.internalServerError});
     }
     
 }

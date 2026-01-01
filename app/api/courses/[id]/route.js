@@ -4,6 +4,7 @@ import { getUserFromRequest, requireRole } from "@/lib/auth";
 import { Role } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { st2xx, st4xx, st5xx } from "@/lib/responseCode";
+import { prismaError } from "@/lib/prismaErrorResponse";
 
 /** 
  * @param {import("next/server").NextRequest} request 
@@ -39,15 +40,11 @@ export async function GET(request,context) {
         return NextResponse.json({course},{status:st2xx.ok});
 
     }catch(e){
-        
-        if(e.code === 'P2025')
-            return new NextResponse("no matches were found",{status:st4xx.notFound});
-        
         if(e.message === 'FORBIDDEN')
-            return new NextResponse(`${e.message}`,{status:st4xx.forbiddden});
+            return new NextResponse(`${e.message}`,{status:st4xx.forbidden});
 
-        console.error(`${e.name} : ${e.message} \n ${e.stack}`);
-        return new NextResponse("internal server error",{status:st5xx.internalServerError});
+        console.error(`${e.name} : ${e.message} \n${e.stack}`);
+        return prismaError(e)?? new NextResponse("internal server error",{status:st5xx.internalServerError});
     }
     
 }
@@ -82,10 +79,10 @@ export async function PATCH(request,context) {
 
     }catch(e){
         if(e.message === 'FORBIDDEN')
-            return new NextResponse(`${e.message}`,{status:st4xx.forbiddden});
+            return new NextResponse(`${e.message}`,{status:st4xx.forbidden});
 
         console.error(`${e.name} : ${e.message} \n ${e.stack}`);
-        return new NextResponse("internal server error",{status:st5xx.internalServerError});    
+        return prismaError(e)?? new NextResponse("internal server error",{status:st5xx.internalServerError});    
     }
     
 }

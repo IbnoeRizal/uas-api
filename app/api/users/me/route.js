@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { st5xx, st4xx,st2xx } from "@/lib/responseCode";
 import { getUserFromRequest } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { prismaError } from "@/lib/prismaErrorResponse";
 
 
 /**@param {import ("next/server").NextRequest} request */
@@ -38,8 +39,7 @@ export async function GET(request) {
 
     }catch(e){
         console.error(`${e.name} ${e.message} \n ${e.stack}`);
-        if(e.code && e.code == "P2025")
-            return new NextResponse("Not found",{status:st4xx.notFound});
-        return new NextResponse("internal Server error",{status:st5xx.internalServerError});
+        
+        return prismaError(e)?? new NextResponse("internal Server error",{status:st5xx.internalServerError});
     }
 }

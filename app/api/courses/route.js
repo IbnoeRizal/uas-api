@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { Role } from "@prisma/client";
 import { pagination } from "@/lib/pagination";
 import { st2xx, st4xx, st5xx } from "@/lib/responseCode";
-
+import { prismaError } from "@/lib/prismaErrorResponse";
 
 /**
  * 
@@ -45,10 +45,10 @@ export async function GET(request) {
 
     }catch(e){
         if (e.message === "FORBIDDEN")
-            return new NextResponse(`${e.message}`,{status:st4xx.forbiddden});
+            return new NextResponse(`${e.message}`,{status:st4xx.forbidden});
         
         console.error(`${e.name} : ${e.message} ${e.stack}`);
-        return new NextResponse("internal server error",{status:st5xx.internalServerError});
+        return prismaError(e)?? new NextResponse("internal server error",{status:st5xx.internalServerError});
     }    
 }
 
@@ -73,10 +73,10 @@ export async function POST(request) {
    }catch(e){
 
         if (e.message === "FORBIDDEN")
-            return new NextResponse(`${e.message}`,{status:st4xx.forbiddden});
+            return new NextResponse(`${e.message}`,{status:st4xx.forbidden});
         
         console.error(`${e.name} : ${e.message} ${e.stack}`);
-        return new NextResponse("internal server error",{status:st5xx.internalServerError});
+        return prismaError(e)?? new NextResponse("internal server error",{status:st5xx.internalServerError});
    }
 }
 
@@ -105,9 +105,9 @@ export async function DELETE(request){
         return NextResponse.json({message: "course deleted successfully", course},{status:st2xx.ok});
     }catch{
         if (e.message === "FORBIDDEN")
-            return new NextResponse(`${e.message}`,{status:st4xx.forbiddden});
+            return new NextResponse(`${e.message}`,{status:st4xx.forbidden});
         
         console.error(`${e.name} : ${e.message} ${e.stack}`);
-        return new NextResponse("internal server error",{status:st5xx.internalServerError});
+        return prismaError(e)?? new NextResponse("internal server error",{status:st5xx.internalServerError});
     }
 }
