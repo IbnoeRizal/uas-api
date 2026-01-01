@@ -1,5 +1,5 @@
 import {prisma} from "@/lib/prisma";
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { User_update, flaterr } from "@/lib/authschema";
 import { hasherpass } from "@/lib/hashpass";
 import { getUserFromRequest,requireRole } from "@/lib/auth";
@@ -7,7 +7,7 @@ import { Role } from "@prisma/client";
 import { st2xx, st4xx, st5xx } from "@/lib/responseCode";
 
 /**
- * @param {NextRequest} request 
+ * @param {import ("next/server").NextRequest} request 
  * @param {{ params: { id: string } }} context
  */
 export async function GET(request,context) {
@@ -53,7 +53,7 @@ export async function GET(request,context) {
 }
 
 /**
- * @param {NextRequest} request 
+ * @param {import ("next/server").NextRequest} request 
  * @param {{ params: { id: string } }} context
  */
 export async function PATCH(request, context) {
@@ -74,7 +74,7 @@ export async function PATCH(request, context) {
             cp.password = await hasherpass(cp.password);
         }
 
-        const update = prisma.user.update({
+        const update = await prisma.user.update({
             where:{id:id},
             data:cp,
             select: {
@@ -85,7 +85,7 @@ export async function PATCH(request, context) {
             }
         });
         
-        return NextResponse.json({message: `User updated successfully`, e}, {status:st2xx.ok});
+        return NextResponse.json({message: `User updated successfully `, updated: update}, {status:st2xx.ok});
 
     }catch(e){
         
