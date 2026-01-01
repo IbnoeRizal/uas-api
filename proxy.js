@@ -7,7 +7,6 @@ export async function proxy(request) {
   const user = await getUserFromRequest(request);
   const {pathname} = request.nextUrl;
   if (user || pathname.startsWith("/api/auth")) {
-    console.log(pathname);
     return NextResponse.next();
   }
 
