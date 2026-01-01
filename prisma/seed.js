@@ -64,7 +64,7 @@ async function main() {
 
   console.log("👤 Seeding users...");
   const usersResult = await prisma.user.createMany({
-    data: Array.from({ length: STUDENTS_COUNT }, (_, i) =>
+    data: Array.from({ length: STUDENTS_COUNT }, () =>
       factoryUser()
     ),
   });
