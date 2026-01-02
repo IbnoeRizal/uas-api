@@ -10,7 +10,8 @@
     "lint": "eslint",
     "studio:prod": "dotenv -e .env.production -- npx prisma studio",
     "migrate:prod": "dotenv -e .env.production -- npx prisma migrate deploy",
-    "seed:prod": "dotenv -e .env.production -- npx prisma db seed"
+    "seed:prod": "dotenv -e .env.production -- npx prisma db seed",
+    "postinstall": "npx prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.2.0",
