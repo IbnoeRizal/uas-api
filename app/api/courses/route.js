@@ -103,7 +103,7 @@ export async function DELETE(request){
         });
         
         return NextResponse.json({message: "course deleted successfully", course},{status:st2xx.ok});
-    }catch{
+    }catch(e){
         if (e.message === "FORBIDDEN")
             return new NextResponse(`${e.message}`,{status:st4xx.forbidden});
         
