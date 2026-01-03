@@ -17,7 +17,7 @@ export async function GET(request,context){
     
     try{
         requireRole(payload,[Role.Admin]);
-        const enrollment = prisma.enrollment.findUniqueOrThrow({
+        const enrollment = await prisma.enrollment.findUniqueOrThrow({
             where:{id:id},
             select:{
                 user:{
