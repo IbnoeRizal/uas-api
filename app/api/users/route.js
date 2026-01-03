@@ -20,13 +20,19 @@ export async function GET(request) {
             prisma.user.findMany({
                 skip: (page - 1) * limit,
                 take: limit,
-                orderBy:{id:"asc"}
+                orderBy:{id:"asc"},
+                select:{
+                    id:true,
+                    name:true,
+                    email:true,
+                    role:true,
+                }
             }),
             prisma.user.count()
         ]) 
         return NextResponse.json(
-            {message:users.length ?users:"no user found",total},
-            {status: users.length ? st2xx.ok: st4xx.notFound}
+            {users,total},
+            {total}
         );
 
     }catch(e){
