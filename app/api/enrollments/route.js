@@ -15,7 +15,7 @@ export async function GET(request){
     const payload = await getUserFromRequest(request);
     try{
         requireRole(payload, [Role.Admin]);
-        const [page,limit] = pagination(request);
+        const {page,limit} = pagination(request);
 
         const [enrollments, total]= await Promise.all([
             prisma.enrollment.findMany({
@@ -110,7 +110,12 @@ export async function DELETE(request){
             return NextResponse.json({message:flaterr(validate.error)},{status:st4xx.badRequest});
 
         const enrollment = await prisma.enrollment.delete({
-            where:validate.data,
+            where:validate.data.id ? {id:validate.data.id} : {
+                userId_courseId:{
+                    userId:validate.data.userId,
+                    courseId:validate.data.courseId
+                }
+            },
             select:{
                 courseId:true,
                 userId:true
