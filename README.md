@@ -134,3 +134,5 @@ enum Role {
 2. [User](./app/api/users/users_endpoint.md)
 3. [Course](./app/api/courses/courses_endpoint.md)
 4. [Enrollment](./app/api/enrollments/enrollments_endpoint.md)
+   
+# [Laporan](https://docs.google.com/document/d/1R-M3p4_nN2A67jhJJHN5P3LLLCGZBNdC/edit?usp=sharing&ouid=103507177891096345620&rtpof=true&sd=true)
